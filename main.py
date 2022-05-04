@@ -27,9 +27,12 @@ app.add_middleware(
 UPLOAD_DIRECTORY_NAME = "uploads"
 UPLOAD_PATH = os.path.join(UPLOAD_DIRECTORY_NAME)
 
+STATIC_DIRECTORY_NAME = "static"
+STATIC_PATH = os.path.join(STATIC_DIRECTORY_NAME)
+
 @app.get("/")
 async def root():
-    return {"message": "Hello, World"}
+    return {"message": 200}
 
 
 @app.post("/upload")
@@ -45,6 +48,11 @@ async def create_upload_file(file: UploadFile):
 @app.get("/file/{filename}")
 async def get_file(filename):
     return FileResponse(os.path.join(UPLOAD_PATH, filename), media_type="text/plain")
+
+
+@app.get("/logo")
+async def get_logo():
+    return FileResponse(os.path.join(STATIC_PATH, "motion-capture.png"), media_type="image/png")
  
 
 # app.mount("/files", StaticFiles(directory=UPLOAD_PATH), name="files")
