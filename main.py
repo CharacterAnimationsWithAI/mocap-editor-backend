@@ -32,7 +32,7 @@ STATIC_PATH = os.path.join(STATIC_DIRECTORY_NAME)
 
 @app.get("/")
 async def root():
-    return {"message": 200}
+    return {"status": True}
 
 
 @app.post("/upload")
@@ -54,5 +54,20 @@ async def get_file(filename):
 async def get_logo():
     return FileResponse(os.path.join(STATIC_PATH, "motion-capture.png"), media_type="image/png")
  
+
+@app.get("/blender-server")
+async def get_blender_server_status():
+    return {"status": False}
+
+
+@app.get("/motion-generation-model")
+async def get_motion_generation_model_status():
+    return {"status": False}
+
+
+@app.get("/style-transfer-model")
+async def get_style_transfer_model_status():
+    return {"status": False}
+
 
 # app.mount("/files", StaticFiles(directory=UPLOAD_PATH), name="files")
