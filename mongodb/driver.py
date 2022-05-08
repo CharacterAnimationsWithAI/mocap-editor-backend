@@ -12,10 +12,15 @@ class Driver:
         logs_collection.insert_one(data_dict)
 
     def get_logs(self):
+        response = []
         logs_collection = self.database["logs"]
-        results = logs_collection.find({}).sort("date", -1).limit(5)
+        results = logs_collection.find({}, {'_id': False}).sort("date", -1).limit(7)
 
-        return list(results)
+        for result in results.clone():
+            result["date"] = str(result["date"])
+            response += [result]
+
+        return response
 
     def check_initial_statistics(self):
         statistics_collection = self.database["statistics"]
