@@ -44,4 +44,23 @@ class Driver:
 
         statistics_collection.update_one({"average_bvh_length": current_time}, {"$set": {"average_bvh_length": current_time + timedelta}})
     
+    def get_average_motion_inference_time(self):
+        statistics_collection = self.database["statistics"]
+        current_data = statistics_collection.find({}).clone()
+        current_time = list(current_data)[0]["average_motion_inference_time"]
+        
+        return current_time
+
+    def get_average_style_transfer_time(self):
+        statistics_collection = self.database["statistics"]
+        current_data = statistics_collection.find({}).clone()
+        current_time = list(current_data)[1]["average_style_transfer_time"]
+        
+        return current_time
     
+    def get_average_bvh_length(self):
+        statistics_collection = self.database["statistics"]
+        current_data = statistics_collection.find({}).clone()
+        current_time = list(current_data)[2]["average_bvh_length"]
+
+        return current_time
