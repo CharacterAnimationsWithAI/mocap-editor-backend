@@ -1,5 +1,5 @@
 import shutil, os
-from datetime import datetime
+from datetime import datetime, timedelta
 from fastapi import FastAPI, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -11,7 +11,8 @@ from mongodb.driver import Driver
 mongo_driver = Driver("localhost:27017")
 # mongo_driver.insert_log({"action": "style_transfer", "source_file": "t1.bvh", "target_file": "t2.bvh", "date": datetime(2022,5,8,11,10,0,0)})
 results = mongo_driver.get_logs()
-mongo_driver.update_average_bvh_length(100.5)
+# mongo_driver.update_average_bvh_length(100.5)
+# print(mongo_driver.get_average_motion_inference_time())
 
 
 app = FastAPI()
@@ -74,9 +75,24 @@ async def get_motion_generation_model_status():
     return {"status": False}
 
 
+@app.get("/motion-generation-model/inference-time")
+async def get_average_motion_inference_time():
+    return {"statistic": str(timedelta(seconds=mongo_driver.get_average_motion_inference_time()))}
+
+
 @app.get("/style-transfer-model")
 async def get_style_transfer_model_status():
     return {"status": False}
+
+
+@app.get("/style-transfer-model/inference-time")
+async def get_average_style_transfer_time():
+    return {"statistic": str(timedelta(seconds=mongo_driver.get_average_style_transfer_time()))}
+
+
+@app.get("/bvh-length")
+async def get_average_bvh_length():
+    return {"statistic": str(timedelta(seconds=mongo_driver.get_average_bvh_length()))}
 
 
 # app.mount("/files", StaticFiles(directory=UPLOAD_PATH), name="files")
