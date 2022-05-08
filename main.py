@@ -9,8 +9,9 @@ from mongodb.driver import Driver
 
 # MongoDB driver for database queries
 mongo_driver = Driver("localhost:27017")
-# mongo_driver.insert_log({"action": "style_transfer", "source_file": "t1.bvh", "target_file": "t2.bvh", "date": datetime(2022,5,8,11,10,0,0)})
-results = mongo_driver.get_logs()
+# mongo_driver.insert_log({"action": "motion_generation", "motion_generation": True, "source_file": "walk1.bvh", "target_file": "st2.bvh", "date": datetime.now()})
+# results = mongo_driver.get_logs()
+# print(results)
 # mongo_driver.update_average_bvh_length(100.5)
 # print(mongo_driver.get_average_motion_inference_time())
 
@@ -94,5 +95,14 @@ async def get_average_style_transfer_time():
 async def get_average_bvh_length():
     return {"statistic": str(timedelta(seconds=mongo_driver.get_average_bvh_length()))}
 
+
+@app.get("/get-logs")
+async def get_logs():
+    return {"logs": mongo_driver.get_logs()}
+
+
+@app.get("/get-gpu-status")
+async def get_gpu_status():
+    return {"status": False}
 
 # app.mount("/files", StaticFiles(directory=UPLOAD_PATH), name="files")
