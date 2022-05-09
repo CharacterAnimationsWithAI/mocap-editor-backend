@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 
-class Driver:
+class API:
     def __init__(self, url):
         self.client = MongoClient(url)
         self.database = self.client["mocapEditorDB"]
