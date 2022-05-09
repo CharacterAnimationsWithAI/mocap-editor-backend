@@ -4,6 +4,7 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from datastructures.inference_data import InferenceData
 
 from mongodb.api import API
 
@@ -104,5 +105,10 @@ async def get_logs():
 @app.get("/get-gpu-status")
 async def get_gpu_status():
     return {"status": False}
+
+
+@app.post("/style-transfer-model/inference")
+async def apply_style_transfer(inference_data: InferenceData):
+    return inference_data
 
 # app.mount("/files", StaticFiles(directory=UPLOAD_PATH), name="files")
