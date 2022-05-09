@@ -5,10 +5,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from mongodb.driver import Driver
+from mongodb.api import API
 
 # MongoDB driver for database queries
-mongo_driver = Driver("localhost:27017")
+mongo_driver = API("localhost:27017")
 # mongo_driver.insert_log({"action": "motion_generation", "motion_generation": True, "source_file": "walk1.bvh", "target_file": "st2.bvh", "date": datetime.now()})
 # results = mongo_driver.get_logs()
 # print(results)
