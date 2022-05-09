@@ -4,7 +4,7 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from datastructures.inference_data import InferenceData
+from datastructures.style_transfer_data import StyleTransferData
 
 from mongodb.api import API
 
@@ -107,12 +107,12 @@ async def get_gpu_status():
 
 
 @app.post("/style-transfer-model/inference")
-async def apply_style_transfer(inference_data: InferenceData):
+async def apply_style_transfer(style_transfer_data: StyleTransferData):
     ### TODO: add style transfer model code
 
     # logging request
-    mongo_api.insert_log({"action": "style_transfer", "motion_generation": False, "source_file": inference_data.file1, "target_file": inference_data.file2, "date": datetime.now()})
+    mongo_api.insert_log({"action": "style_transfer", "motion_generation": False, "source_file": style_transfer_data.file1, "target_file": style_transfer_data.file2, "date": datetime.now()})
 
-    return inference_data
+    return style_transfer_data
 
 # app.mount("/files", StaticFiles(directory=UPLOAD_PATH), name="files")
