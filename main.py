@@ -9,13 +9,12 @@ from datastructures.inference_data import InferenceData
 from mongodb.api import API
 
 # MongoDB driver for database queries
-mongo_driver = API("localhost:27017")
-# mongo_driver.insert_log({"action": "motion_generation", "motion_generation": True, "source_file": "walk1.bvh", "target_file": "st2.bvh", "date": datetime.now()})
-# results = mongo_driver.get_logs()
+mongo_api = API("localhost:27017")
+# mongo_api.insert_log({"action": "motion_generation", "motion_generation": True, "source_file": "walk1.bvh", "target_file": "st2.bvh", "date": datetime.now()})
+# results = mongo_api.get_logs()
 # print(results)
-# mongo_driver.update_average_bvh_length(100.5)
-# print(mongo_driver.get_average_motion_inference_time())
-
+# mongo_api.update_average_bvh_length(100.5)
+# print(mongo_api.get_average_motion_inference_time())
 
 app = FastAPI()
 
@@ -79,7 +78,7 @@ async def get_motion_generation_model_status():
 
 @app.get("/motion-generation-model/inference-time")
 async def get_average_motion_inference_time():
-    return {"statistic": str(timedelta(seconds=mongo_driver.get_average_motion_inference_time()))}
+    return {"statistic": str(timedelta(seconds=mongo_api.get_average_motion_inference_time()))}
 
 
 @app.get("/style-transfer-model")
@@ -89,17 +88,17 @@ async def get_style_transfer_model_status():
 
 @app.get("/style-transfer-model/inference-time")
 async def get_average_style_transfer_time():
-    return {"statistic": str(timedelta(seconds=mongo_driver.get_average_style_transfer_time()))}
+    return {"statistic": str(timedelta(seconds=mongo_api.get_average_style_transfer_time()))}
 
 
 @app.get("/bvh-length")
 async def get_average_bvh_length():
-    return {"statistic": str(timedelta(seconds=mongo_driver.get_average_bvh_length()))}
+    return {"statistic": str(timedelta(seconds=mongo_api.get_average_bvh_length()))}
 
 
 @app.get("/get-logs")
 async def get_logs():
-    return {"logs": mongo_driver.get_logs()}
+    return {"logs": mongo_api.get_logs()}
 
 
 @app.get("/get-gpu-status")
@@ -109,6 +108,11 @@ async def get_gpu_status():
 
 @app.post("/style-transfer-model/inference")
 async def apply_style_transfer(inference_data: InferenceData):
+    ### TODO: add style transfer model code
+
+    # logging request
+    mongo_api.insert_log({"action": "style_transfer", "motion_generation": False, "source_file": inference_data.file1, "target_file": inference_data.file2, "date": datetime.now()})
+
     return inference_data
 
 # app.mount("/files", StaticFiles(directory=UPLOAD_PATH), name="files")
