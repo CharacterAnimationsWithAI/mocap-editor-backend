@@ -1,4 +1,4 @@
-import shutil, os
+import shutil, os, uuid
 from datetime import datetime, timedelta
 from fastapi import FastAPI, File, UploadFile
 from fastapi.staticfiles import StaticFiles
@@ -48,12 +48,15 @@ async def root():
 
 @app.post("/upload")
 async def create_upload_file(file: UploadFile):
-    UPLOAD_FILE = os.path.join(UPLOAD_PATH, file.filename)
+    # assigning uuid4
+    unique_id = str(uuid.uuid4())
+    UPLOAD_FILE = os.path.join(UPLOAD_PATH, unique_id + "-" + file.filename)
     print(UPLOAD_FILE)
+
     with open(UPLOAD_FILE, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     
-    return {"message": "upload successful", "filename": file.filename}
+    return {"message": "upload successful", "filename": unique_id + "-" + file.filename}
 
 
 @app.get("/file/{filename}")
