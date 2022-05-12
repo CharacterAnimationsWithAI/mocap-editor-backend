@@ -114,7 +114,8 @@ async def apply_style_transfer(style_transfer_data: StyleTransferData):
     ### TODO: add style transfer model code
 
     # logging request
-    mongo_api.insert_log({"action": "style_transfer", "motion_generation": False, "source_file": style_transfer_data.file1, "target_file": style_transfer_data.file2, "date": datetime.now()})
+    # removing uuid4 tag before storing in database
+    mongo_api.insert_log({"action": "style_transfer", "motion_generation": False, "source_file": ''.join(style_transfer_data.file1.split('-')[5:]), "target_file": ''.join(style_transfer_data.file2.split('-')[5:]), "date": datetime.now()})
 
     return style_transfer_data
 
