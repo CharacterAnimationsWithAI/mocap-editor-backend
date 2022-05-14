@@ -1,6 +1,8 @@
+import asyncio
 import shutil, os, uuid
+from time import sleep
 from datetime import datetime, timedelta
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -118,5 +120,18 @@ async def apply_style_transfer(style_transfer_data: StyleTransferData):
     mongo_api.insert_log({"action": "style_transfer", "motion_generation": False, "source_file": ''.join(style_transfer_data.file1.split('-')[5:]), "target_file": ''.join(style_transfer_data.file2.split('-')[5:]), "date": datetime.now()})
 
     return style_transfer_data
+
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    print("Connection accepted")
+    while True:
+        await websocket.send_json({"url": "http://localhost:8000/file/38e0279f-ced7-44db-b6d4-cd3680a13598-fixed.bvh"})
+        await asyncio.sleep(60)
+        # await websocket.send_json({"url": "http://localhost:8000/file/85f1c481-0637-4ed2-aee1-2e20d07e291c-walk1_subject1.bvh"})
+        # await asyncio.sleep(15)
+        
+
 
 # app.mount("/files", StaticFiles(directory=UPLOAD_PATH), name="files")
