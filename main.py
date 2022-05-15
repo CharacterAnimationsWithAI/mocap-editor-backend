@@ -7,6 +7,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from datastructures.style_transfer_data import StyleTransferData
+from cpuinfo import get_cpu_info
+import psutil
+import GPUtil
+
 
 from mongodb.api import API
 
@@ -113,13 +117,34 @@ async def get_gpu_status():
 
 @app.post("/style-transfer-model/inference")
 async def apply_style_transfer(style_transfer_data: StyleTransferData):
-    ### TODO: add style transfer model code
+    ### TODO: add style transfer model code & update time
 
     # logging request
     # removing uuid4 tag before storing in database
     mongo_api.insert_log({"action": "style_transfer", "motion_generation": False, "source_file": ''.join(style_transfer_data.file1.split('-')[5:]), "target_file": ''.join(style_transfer_data.file2.split('-')[5:]), "date": datetime.now()})
 
-    return style_transfer_data
+    # return style_transfer_data
+    return {"status": True, "url": "http://localhost:8000/file/38e0279f-ced7-44db-b6d4-cd3680a13598-fixed.bvh"}
+
+
+@app.get('/system-information')
+async def system_information():
+    # cpu_info = get_cpu_info()['brand_raw'] # takes 1sec
+    cpu_info = "Intel(R) Core(TM) i5-9600K CPU @ 3.70GHz"
+    ram_info = "{:.2f}".format(float(psutil.virtual_memory().total) / (1000000000)) + "GB"
+    
+    gpu_info = None
+    vram_info = None
+
+    if GPUtil.getGPUs() == []:
+        gpu_info = 'Not Available'
+        vram_info = 'Not Availabe'
+    else:
+        gpu_info = GPUtil.getGPUs()[0].name
+        vram_info = str(GPUtil.getGPUs()[0].memoryTotal) + " MB"
+
+    return {"cpu": cpu_info, "ram": ram_info, "gpu":gpu_info, "vram":vram_info}
+
 
 
 @app.websocket("/ws")
@@ -128,7 +153,7 @@ async def websocket_endpoint(websocket: WebSocket):
     print("Connection accepted")
     while True:
         await websocket.send_json({"url": "http://localhost:8000/file/38e0279f-ced7-44db-b6d4-cd3680a13598-fixed.bvh"})
-        await asyncio.sleep(60)
+        await asyncio.sleep(5)
         # await websocket.send_json({"url": "http://localhost:8000/file/85f1c481-0637-4ed2-aee1-2e20d07e291c-walk1_subject1.bvh"})
         # await asyncio.sleep(15)
         
