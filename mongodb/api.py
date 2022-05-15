@@ -26,7 +26,7 @@ class API:
         statistics_collection = self.database["statistics"]
 
         if not list(statistics_collection.find({})):
-            statistics_collection.insert_many([{"average_motion_inference_time": 0.0}, {"average_style_transfer_time": 0.0}, {"average_bvh_length": 0.0}])
+            statistics_collection.insert_many([{"average_motion_inference_time": 0.0}, {"average_style_transfer_time": 0.0}, {"average_bvh_length": 0.0}, {"number_of_files": 0}])
 
     def update_average_motion_inference_time(self, timedelta):
         statistics_collection = self.database["statistics"]
@@ -69,3 +69,17 @@ class API:
         current_time = list(current_data)[2]["average_bvh_length"]
 
         return current_time
+
+    def get_number_of_files(self):
+        statistics_collection = self.database["statistics"]
+        current_data = statistics_collection.find({}).clone()
+        current_time = list(current_data)[3]["number_of_files"]
+
+        return current_time
+
+    def update_number_of_files(self):
+        statistics_collection = self.database["statistics"]
+        current_data = statistics_collection.find({}).clone()
+        current_time = list(current_data)[3]["number_of_files"]
+
+        statistics_collection.update_one({"number_of_files": current_time}, {"$set": {"number_of_files": current_time + 1}})
