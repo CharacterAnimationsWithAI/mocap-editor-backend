@@ -3,6 +3,6 @@ from unicodedata import name
 from pydantic import BaseModel
 
 
-class MotiongenerationData(BaseModel):
-    motion_generation: bool
-    file: str
+class MotionGenerationData(BaseModel):
+    filename: str
+    seed_frames: int
