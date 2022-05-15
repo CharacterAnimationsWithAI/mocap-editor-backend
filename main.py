@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from datastructures.bvh_length_data import BVHLengthData
+from datastructures.motion_generation_data import MotionGenerationData
 from datastructures.style_transfer_data import StyleTransferData
 from cpuinfo import get_cpu_info
 import psutil
@@ -160,6 +161,13 @@ async def system_information():
         vram_info = str(GPUtil.getGPUs()[0].memoryTotal) + " MB"
 
     return {"cpu": cpu_info, "ram": ram_info, "gpu":gpu_info, "vram":vram_info}
+
+
+@app.post('/motion-generation-model/inference')
+async def motion_generation_model_inference(data: MotionGenerationData):
+    print(data.filename)
+    print(data.seed_frames)
+    return data
 
 
 
