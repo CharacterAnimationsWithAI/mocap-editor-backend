@@ -1,0 +1,6 @@
+asyncio
+fastapi
+uvicorn[standard]
+cpuinfo
+psutil
+GPUtil
