@@ -6,6 +6,7 @@ from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from datastructures.bvh_length_data import BVHLengthData
 from datastructures.style_transfer_data import StyleTransferData
 from cpuinfo import get_cpu_info
 import psutil
@@ -102,7 +103,22 @@ async def get_average_style_transfer_time():
 
 @app.get("/bvh-length")
 async def get_average_bvh_length():
-    return {"statistic": str(timedelta(seconds=mongo_api.get_average_bvh_length()))}
+    average_bvh_length = mongo_api.get_average_bvh_length()
+    number_of_files = mongo_api.get_number_of_files()
+    try:
+        average_size = str("{:.2f}".format((average_bvh_length / number_of_files) / (1000000))) + " MB"
+    except ZeroDivisionError:
+        average_size = "0 MB"
+
+    return {"statistic": average_size}
+
+
+@app.post("/bvh-length")
+async def update_average_bvh_length(data: BVHLengthData):
+    mongo_api.update_number_of_files()
+    mongo_api.update_average_bvh_length(data.size)
+    return {"status": True}
+
 
 
 @app.get("/get-logs")
