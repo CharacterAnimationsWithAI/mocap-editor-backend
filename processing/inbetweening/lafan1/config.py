@@ -1,9 +1,6 @@
 import torch
 
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-
 data = {
     "path": "./lafan1/lafan1/",
     "path_flipped": "./lafan1/lafan1/flipped/",

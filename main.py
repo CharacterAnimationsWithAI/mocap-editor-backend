@@ -12,6 +12,7 @@ from datastructures.style_transfer_data import StyleTransferData
 from cpuinfo import get_cpu_info
 import psutil
 import GPUtil
+from processing.inbetweening.inbetweening import Inbetweening
 
 
 from mongodb.api import API
@@ -165,8 +166,8 @@ async def system_information():
 
 @app.post('/motion-generation-model/inference')
 async def motion_generation_model_inference(data: MotionGenerationData):
-    print(data.filename)
-    print(data.seed_frames)
+    inbetweening = Inbetweening()
+    inbetweening.inbetween(data.filename, data.seed_frames)
     return data
 
 

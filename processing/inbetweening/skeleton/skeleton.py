@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from quaternion import qmul_np, qmul, qrot
 from torch.utils.data import Dataset, DataLoader
-from LaFan import LaFan1
+
 
 class Skeleton:
     def __init__(self, offsets, parents, joints_left=None, joints_right=None):
@@ -112,68 +112,3 @@ class Skeleton:
         for i, parent in enumerate(self._parents):
             if parent != -1:
                 self._children[parent].append(i)
-
-if __name__=="__main__":
-    skeleton_mocap = Skeleton(offsets=[
-       [-42.198200,91.614723,-40.067841],
-       [ 0.103456,1.857829,10.548506],
-       [43.499992,-0.000038,-0.000002],
-       [42.372192,0.000015,-0.000007],
-       [ 17.299999,-0.000002,0.000003],
-       [0.000000,0.000000,0.000000],
-
-       [0.103457,1.857829,-10.548503],
-       [43.500042,-0.000027,0.000008],
-       [42.372257,-0.000008,0.000014],
-       [17.299992,-0.000005,0.000004],
-       [0.000000,0.000000,0.000000],
-
-       [6.901968,-2.603733,-0.000001],
-       [12.588099,0.000002,0.000000],
-       [12.343206,0.000000,-0.000001],
-       [25.832886,-0.000004,0.000003],
-       [11.766620,0.000005,-0.000001],
-       [0.000000,0.000000,0.000000],
-
-       [19.745899,-1.480370,6.000108],
-       [11.284125,-0.000009,-0.000018],
-       [33.000050,0.000004,0.000032],
-       [25.200008,0.000015,0.000008],
-       [0.000000,0.000000,0.000000],
-
-       [19.746099,-1.480375,-6.000073],
-       [11.284138,-0.000015,-0.000012],
-       [33.000092,0.000017,0.000013],
-       [25.199780,0.000135,0.000422],
-       [0.000000,0.000000,0.000000]
-    ],
-    parents=[-1,  0,  1,  2,  3,  4,\
-              0,  6,  7,  8,  9,\
-              0, 11, 12, 13, 14, 15,\
-              13, 17, 18, 19, 20, 
-              13, 22, 23, 24, 25])
-
-    skeleton_mocap.remove_joints([5,10,16,21,26])
-    os.system('conda deactivate')
-    os.system('conda activate mobet')
-    # from npybvh.bvh import Bvh
-    # anim = Bvh()
-    # anim.parse_file('D:\\ubisoft-laforge-animation-dataset\\lafan1\\lafan1\\aiming1_subject1.bvh')
-    
-    # for t in range(65):
-    #     positions, rotations = anim.frame_pose(t)
-    #     want_idx = [0,1,2,3,4,\
-    #                 6,7,8,9,\
-    #                 11,12,13,14,15,\
-    #                 17,18,19,20,\
-    #                 22,23,24,25]
-    #     positions = positions[want_idx]
-    #     print(positions[0])
-
-    lafan_data = LaFan1('D:\\ubisoft-laforge-animation-dataset\\lafan1\\lafan1', train = False, debug=False)
-    lafan_loader = DataLoader(lafan_data, batch_size=32, shuffle=False, num_workers=4)
-    for i_batch, sample_batched in enumerate(lafan_loader):
-        pos_batch = skeleton_mocap.forward_kinematics(sample_batched['local_q'], sample_batched['root_p'])
-        # print(pos_batch[0,:,0].cpu().numpy())
-        # break
-        
