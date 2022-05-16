@@ -28,7 +28,7 @@ def gen_ztta(timesteps=60, dim=256):
 def write_to_bvhfile(data, filename, joints_to_remove):
     fout = open(filename, 'w')
     line_cnt = 0
-    for line in open('./lafan1/example.bvh', 'r'):
+    for line in open('./processing/inbetweening/lafan1/example.bvh', 'r'):
         fout.write(line)
         line_cnt += 1
         if line_cnt >= 132:

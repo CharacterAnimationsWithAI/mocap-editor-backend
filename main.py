@@ -167,7 +167,7 @@ async def system_information():
 @app.post('/motion-generation-model/inference')
 async def motion_generation_model_inference(data: MotionGenerationData):
     inbetweening = Inbetweening()
-    inbetweening.inbetween(data.filename, data.seed_frames)
+    inbetweening.inbetween(data.filename, data.seed_frames, "./results/motion_generation/test.bvh")
     return data
 
 

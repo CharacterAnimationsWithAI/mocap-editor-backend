@@ -1,6 +1,5 @@
 import os
 import torch
-import numpy as np
 from tqdm import tqdm
 from .models import StateEncoder, OffsetEncoder, TargetEncoder, LSTM, Decoder
 from .skeleton.skeleton import Skeleton
@@ -62,9 +61,10 @@ class Inbetweening:
         skeleton.remove_joints(data["joints_to_remove"])
 
     
-    def inbetween(self, input_bvh_path, num_seed_frames):
-        sequence = LaFan1.load_single_bvh_sequence(input_bvh_path)
+    def inbetween(self, input_bvh_path, num_seed_frames, output_path):
+        sequence = LaFan1.load_single_bvh_sequence(input_bvh_path, start=400, end=459)
         sequence_length = sequence['X'].shape[0]
+        ztta = gen_ztta(timesteps=sequence_length).to(self.device)
 
         with torch.no_grad():
             # State inputs
@@ -96,4 +96,64 @@ class Inbetweening:
             bvh_list = []
             bvh_list.append(torch.cat([X[:, 0, 0], local_q[:, 0,].view(local_q.size(0), -1)], -1))
 
-            
+            for t in tqdm(range(sequence_length - 1)):
+                if t  == 0:
+                    root_p_t = root_p[:,t]
+                    local_q_t = local_q[:,t]
+                    local_q_t = local_q_t.view(local_q_t.size(0), -1)
+                    contact_t = contact[:,t]
+                    root_v_t = root_v[:,t]
+                else:
+                    root_p_t = root_pred[0]
+                    local_q_t = local_q_pred[0]
+                    contact_t = contact_pred[0]
+                    root_v_t = root_v_pred[0]
+
+                state_input = torch.cat([local_q_t, root_v_t, contact_t], -1)
+
+                root_p_offset_t = root_p_offset - root_p_t
+                local_q_offset_t = local_q_offset - local_q_t
+                offset_input = torch.cat([root_p_offset_t, local_q_offset_t], -1)
+
+                target_input = target
+
+                h_state = self.state_encoder(state_input)
+                h_offset = self.offset_encoder(offset_input)
+                h_target = self.target_encoder(target_input)
+
+                tta = sequence_length - t - 2
+                
+                h_state += ztta[tta]
+                h_offset += ztta[tta]
+                h_target += ztta[tta]
+                
+                if tta < 5:
+                    lambda_target = 0.0
+                elif tta >= 5 and tta < 30:
+                    lambda_target = (tta - 5) / 25.0
+                else:
+                    lambda_target = 1.0
+                h_offset += 0.5 * lambda_target * torch.FloatTensor(h_offset.size()).normal_().to(self.device)
+                h_target += 0.5 * lambda_target * torch.FloatTensor(h_target.size()).normal_().to(self.device)
+
+                h_in = torch.cat([h_state, h_offset, h_target], -1).unsqueeze(0)
+                h_out = self.lstm(h_in)
+
+                h_pred, contact_pred = self.decoder(h_out)
+                local_q_v_pred = h_pred[:, :, :88]
+                local_q_pred = local_q_v_pred + local_q_t
+
+                local_q_pred_ = local_q_pred.view(local_q_pred.size(0), local_q_pred.size(1), -1, 4)
+                local_q_pred_ = local_q_pred_ / torch.norm(local_q_pred_, dim = -1, keepdim = True)
+
+                root_v_pred = h_pred[:,:,88:]
+                root_pred = root_v_pred + root_p_t
+
+                bvh_list.append(torch.cat([root_pred[0], local_q_pred_[0].view(local_q_pred.size(1), -1)], -1))
+
+                local_q_next = local_q[:,t+1]
+                local_q_next = local_q_next.view(local_q_next.size(0), -1)
+
+            bvh_data = torch.cat([x[0].unsqueeze(0) for x in bvh_list], 0).detach().cpu().numpy()
+            write_to_bvhfile(bvh_data, output_path, data['joints_to_remove'])
+                
