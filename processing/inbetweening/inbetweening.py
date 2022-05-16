@@ -62,7 +62,7 @@ class Inbetweening:
 
     
     def inbetween(self, input_bvh_path, num_seed_frames, output_path):
-        sequence = LaFan1.load_single_bvh_sequence(input_bvh_path, start=400, end=459)
+        sequence = LaFan1.load_single_bvh_sequence(input_bvh_path)
         sequence_length = sequence['X'].shape[0]
         ztta = gen_ztta(timesteps=sequence_length).to(self.device)
 
