@@ -1,6 +1,6 @@
 asyncio
 fastapi
 uvicorn[standard]
-cpuinfo
+py-cpuinfo
 psutil
 GPUtil
