@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from .skeleton.quaternion import qeuler_np
+from .foot_sliding.BVH import *
 
 
 def PLU(x, alpha = 0.1, c = 1.0):
@@ -45,3 +46,28 @@ def write_to_bvhfile(data, filename, joints_to_remove):
         fout.write(line)
     fout.close()
         
+
+def change_bvh_axis(file_path):
+    anim, names, frametime = load(file_path)
+    tmp = anim.offsets.copy()
+    anim.offsets[..., 2] = tmp[..., 0]
+    anim.offsets[..., 0] = tmp[..., 1]
+    anim.offsets[..., 1] = tmp[..., 2]
+
+    tmp = anim.positions.copy()
+    anim.positions[..., 2] = tmp[..., 0]
+    anim.positions[..., 0] = tmp[..., 1]
+    anim.positions[..., 1] = tmp[..., 2]
+
+    tmp = anim.rotations.qs.copy()
+    anim.rotations.qs[..., 3] = tmp[..., 1]
+    anim.rotations.qs[..., 1] = tmp[..., 2]
+    anim.rotations.qs[..., 2] = tmp[..., 3]
+
+    # joint_num = anim.rotations.shape[1]
+    # frame_num = anim.rotations.shape[0]
+
+    save_file_name = file_path.replace('.bvh', '_flipped.bvh')
+    save(filename= save_file_name, anim=anim, names=names, frametime=frametime)
+
+    return save_file_name
