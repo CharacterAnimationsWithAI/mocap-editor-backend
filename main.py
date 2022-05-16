@@ -12,6 +12,7 @@ from datastructures.style_transfer_data import StyleTransferData
 from cpuinfo import get_cpu_info
 import psutil
 import GPUtil
+from processing.inbetweening.functions import change_bvh_axis
 from processing.inbetweening.inbetweening import Inbetweening
 
 
@@ -166,8 +167,10 @@ async def system_information():
 
 @app.post('/motion-generation-model/inference')
 async def motion_generation_model_inference(data: MotionGenerationData):
+    fixed_filename = change_bvh_axis(data.filename)
     inbetweening = Inbetweening()
-    inbetweening.inbetween(data.filename, data.seed_frames, "./results/motion_generation/test.bvh")
+    inbetweening.inbetween(fixed_filename, data.seed_frames, "./results/motion_generation/test.bvh")
+    
     return data
 
 
