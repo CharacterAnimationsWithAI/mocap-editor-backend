@@ -29,7 +29,7 @@ def main(args):
     config = config_module.Config()
 
     # Load experiment setting
-    config.initialize(args)
+    config.initialize(args, save=False)
 
     # Trainer
     trainer = Trainer(config)
