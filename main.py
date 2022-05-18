@@ -17,6 +17,7 @@ from processing.inbetweening.inbetweening import Inbetweening
 
 
 from mongodb.api import API
+from processing.motion_style_transfer.main import StyleTransfer
 
 # MongoDB driver for database queries
 mongo_api = API("localhost:27017")
@@ -137,6 +138,10 @@ async def get_gpu_status():
 @app.post("/style-transfer-model/inference")
 async def apply_style_transfer(style_transfer_data: StyleTransferData):
     ### TODO: add style transfer model code & update time
+    style_transfer = StyleTransfer(os.path.join(UPLOAD_DIRECTORY_NAME, style_transfer_data.file1), 
+            os.path.join(UPLOAD_DIRECTORY_NAME, style_transfer_data.file2), './results/style_transfer')
+            
+    style_transfer.apply_style_transfer()
 
     # logging request
     # removing uuid4 tag before storing in database
