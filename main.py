@@ -1,6 +1,6 @@
 import asyncio
 import shutil, os, uuid
-from time import sleep
+from time import sleep, time
 from datetime import datetime, timedelta
 from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.staticfiles import StaticFiles
@@ -100,7 +100,7 @@ async def get_average_motion_inference_time():
 
 @app.get("/style-transfer-model")
 async def get_style_transfer_model_status():
-    return {"status": False}
+    return {"status": True}
 
 
 @app.get("/style-transfer-model/inference-time")
@@ -140,15 +140,20 @@ async def get_gpu_status():
 
 @app.post("/style-transfer-model/inference")
 async def apply_style_transfer(style_transfer_data: StyleTransferData):
-    ### TODO: add style transfer model code & update time
+    # adding time
+    start_time = time()
+
     style_transfer = StyleTransfer(os.path.join(UPLOAD_DIRECTORY_NAME, style_transfer_data.file1), os.path.join(UPLOAD_DIRECTORY_NAME, 
             style_transfer_data.file2), os.path.join(RESULT_PATH, "style_transfer"))
 
     style_transfer.apply_style_transfer()
+    
+    total_time =  time() - start_time
 
     # logging request
     # removing uuid4 tag before storing in database
     mongo_api.insert_log({"action": "style_transfer", "motion_generation": False, "source_file": ''.join(style_transfer_data.file1.split('-')[5:]), "target_file": ''.join(style_transfer_data.file2.split('-')[5:]), "date": datetime.now()})
+    mongo_api.update_average_style_transfer_time(total_time)
 
     # return style_transfer_data
     return {"status": True, "url": "http://localhost:8000/result/style-transfer/fixed.bvh"}
