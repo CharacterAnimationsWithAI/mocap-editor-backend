@@ -52,6 +52,9 @@ UPLOAD_PATH = os.path.join(UPLOAD_DIRECTORY_NAME)
 STATIC_DIRECTORY_NAME = "static"
 STATIC_PATH = os.path.join(STATIC_DIRECTORY_NAME)
 
+RESULT_DIRECTORY_NAME = "results"
+RESULT_PATH = os.path.join(RESULT_DIRECTORY_NAME)
+
 @app.get("/")
 async def root():
     return {"status": True}
@@ -138,9 +141,9 @@ async def get_gpu_status():
 @app.post("/style-transfer-model/inference")
 async def apply_style_transfer(style_transfer_data: StyleTransferData):
     ### TODO: add style transfer model code & update time
-    style_transfer = StyleTransfer(os.path.join(UPLOAD_DIRECTORY_NAME, style_transfer_data.file1), 
-            os.path.join(UPLOAD_DIRECTORY_NAME, style_transfer_data.file2), './results/style_transfer')
-            
+    style_transfer = StyleTransfer(os.path.join(UPLOAD_DIRECTORY_NAME, style_transfer_data.file1), os.path.join(UPLOAD_DIRECTORY_NAME, 
+            style_transfer_data.file2), os.path.join(RESULT_PATH, "style_transfer"))
+
     style_transfer.apply_style_transfer()
 
     # logging request
@@ -148,7 +151,7 @@ async def apply_style_transfer(style_transfer_data: StyleTransferData):
     mongo_api.insert_log({"action": "style_transfer", "motion_generation": False, "source_file": ''.join(style_transfer_data.file1.split('-')[5:]), "target_file": ''.join(style_transfer_data.file2.split('-')[5:]), "date": datetime.now()})
 
     # return style_transfer_data
-    return {"status": True, "url": "http://localhost:8000/file/38e0279f-ced7-44db-b6d4-cd3680a13598-fixed.bvh"}
+    return {"status": True, "url": "http://localhost:8000/result/style-transfer/fixed.bvh"}
 
 
 @app.get('/system-information')
@@ -179,13 +182,17 @@ async def motion_generation_model_inference(data: MotionGenerationData):
     return data
 
 
+@app.get('/result/style-transfer/{filename}')
+def get_processing_result(filename):
+    return FileResponse(os.path.join(os.path.join(RESULT_PATH, "style_transfer"), filename), media_type="text/plain")
+
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     print("Connection accepted")
     while True:
-        await websocket.send_json({"url": "http://localhost:8000/file/38e0279f-ced7-44db-b6d4-cd3680a13598-fixed.bvh"})
+        # await websocket.send_json({"url": "http://localhost:8000/file/38e0279f-ced7-44db-b6d4-cd3680a13598-fixed.bvh"})
         await asyncio.sleep(5)
         # await websocket.send_json({"url": "http://localhost:8000/file/85f1c481-0637-4ed2-aee1-2e20d07e291c-walk1_subject1.bvh"})
         # await asyncio.sleep(15)
