@@ -17,7 +17,7 @@ from processing.inbetweening.inbetweening import Inbetweening
 
 
 from mongodb.api import API
-from processing.motion_style_transfer.main import StyleTransfer
+from processing.motion_style_transfer.process_style_transfer import StyleTransfer
 
 # MongoDB driver for database queries
 mongo_api = API("localhost:27017")
