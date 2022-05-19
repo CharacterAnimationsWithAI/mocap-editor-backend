@@ -1,3 +1,4 @@
+import torch
 import asyncio
 import shutil, os, uuid
 from time import sleep, time, strftime, gmtime
@@ -56,6 +57,7 @@ RESULT_DIRECTORY_NAME = "results"
 RESULT_PATH = os.path.join(RESULT_DIRECTORY_NAME)
 
 CPU_INFO = get_cpu_info()['brand_raw'] # takes 1sec
+GPU_STATUS = True if torch.cuda.is_available() else False
 
 
 @app.get("/")
@@ -138,7 +140,7 @@ async def get_logs():
 
 @app.get("/get-gpu-status")
 async def get_gpu_status():
-    return {"status": False}
+    return {"status": GPU_STATUS}
 
 
 @app.post("/style-transfer-model/inference")
