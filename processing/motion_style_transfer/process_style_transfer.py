@@ -9,5 +9,7 @@ class StyleTransfer:
 
     def apply_style_transfer(self):
         args = argparse.Namespace(name=None, batch_size=None, config='config', content_src=self.content_src, style_src=self.style_src, output_dir=self.output_dir)
-        main(args)
+        unique_id = main(args)
+
+        return unique_id
         
