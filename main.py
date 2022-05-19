@@ -146,7 +146,7 @@ async def apply_style_transfer(style_transfer_data: StyleTransferData):
     style_transfer = StyleTransfer(os.path.join(UPLOAD_DIRECTORY_NAME, style_transfer_data.file1), os.path.join(UPLOAD_DIRECTORY_NAME, 
             style_transfer_data.file2), os.path.join(RESULT_PATH, "style_transfer"))
 
-    style_transfer.apply_style_transfer()
+    unique_id = style_transfer.apply_style_transfer()
     
     total_time =  time() - start_time
 
@@ -156,7 +156,7 @@ async def apply_style_transfer(style_transfer_data: StyleTransferData):
     mongo_api.update_average_style_transfer_time(total_time)
 
     # return style_transfer_data
-    return {"status": True, "url": "http://localhost:8000/result/style-transfer/fixed.bvh"}
+    return {"status": True, "url": "http://localhost:8000/result/style-transfer/" + unique_id + "-fixed.bvh"}
 
 
 @app.get('/system-information')
