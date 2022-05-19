@@ -55,6 +55,9 @@ STATIC_PATH = os.path.join(STATIC_DIRECTORY_NAME)
 RESULT_DIRECTORY_NAME = "results"
 RESULT_PATH = os.path.join(RESULT_DIRECTORY_NAME)
 
+CPU_INFO = get_cpu_info()['brand_raw'] # takes 1sec
+
+
 @app.get("/")
 async def root():
     return {"status": True}
@@ -161,8 +164,6 @@ async def apply_style_transfer(style_transfer_data: StyleTransferData):
 
 @app.get('/system-information')
 async def system_information():
-    # cpu_info = get_cpu_info()['brand_raw'] # takes 1sec
-    cpu_info = "Intel(R) Core(TM) i5-9600K CPU @ 3.70GHz"
     ram_info = "{:.2f}".format(float(psutil.virtual_memory().total) / (1000000000)) + "GB"
     
     gpu_info = None
@@ -175,7 +176,7 @@ async def system_information():
         gpu_info = GPUtil.getGPUs()[0].name
         vram_info = str(GPUtil.getGPUs()[0].memoryTotal) + " MB"
 
-    return {"cpu": cpu_info, "ram": ram_info, "gpu":gpu_info, "vram":vram_info}
+    return {"cpu": CPU_INFO, "ram": ram_info, "gpu":gpu_info, "vram":vram_info}
 
 
 @app.post('/motion-generation-model/inference')
