@@ -1,6 +1,6 @@
 import asyncio
 import shutil, os, uuid
-from time import sleep, time
+from time import sleep, time, strftime, gmtime
 from datetime import datetime, timedelta
 from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.staticfiles import StaticFiles
@@ -98,7 +98,7 @@ async def get_motion_generation_model_status():
 
 @app.get("/motion-generation-model/inference-time")
 async def get_average_motion_inference_time():
-    return {"statistic": str(timedelta(seconds=mongo_api.get_average_motion_inference_time()))}
+    return {"statistic": strftime("%H:%M:%S", gmtime(mongo_api.get_average_motion_inference_time()))}
 
 
 @app.get("/style-transfer-model")
@@ -108,7 +108,7 @@ async def get_style_transfer_model_status():
 
 @app.get("/style-transfer-model/inference-time")
 async def get_average_style_transfer_time():
-    return {"statistic": str(timedelta(seconds=mongo_api.get_average_style_transfer_time()))}
+    return {"statistic": strftime("%H:%M:%S", gmtime(mongo_api.get_average_style_transfer_time()))}
 
 
 @app.get("/bvh-length")
