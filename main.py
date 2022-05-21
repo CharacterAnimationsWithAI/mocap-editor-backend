@@ -91,12 +91,12 @@ async def get_logo():
 
 @app.get("/blender-server")
 async def get_blender_server_status():
-    return {"status": False}
+    return {"status": True}
 
 
 @app.get("/motion-generation-model")
 async def get_motion_generation_model_status():
-    return {"status": False}
+    return {"status": True}
 
 
 @app.get("/motion-generation-model/inference-time")
