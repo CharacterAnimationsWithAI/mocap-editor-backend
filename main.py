@@ -184,6 +184,8 @@ async def system_information():
 
 @app.post('/motion-generation-model/inference')
 async def motion_generation_model_inference(data: MotionGenerationData):
+    # logging time and request
+    start_time = time()
     unique_id = str(uuid.uuid4())
     global QUEUE
 
@@ -191,6 +193,13 @@ async def motion_generation_model_inference(data: MotionGenerationData):
     inbetweening.inbetween(data.filename, data.seed_frames, "./results/motion_generation/" + unique_id + "-result.bvh")
     
     QUEUE.put_nowait({"url": "http://localhost:8000/result/motion-generation/" + unique_id + "-result.bvh"})
+
+    # logging request
+    # removing uuid4 tag before storing in database
+    total_time = time() - start_time
+    mongo_api.insert_log({"action": "motion_generation", "motion_generation": True, "source_file": ''.join(data.filename.split('-')[5:]), "target_file": '', "date": datetime.now()})
+    mongo_api.update_average_style_transfer_time(total_time)
+
     return data
 
 
