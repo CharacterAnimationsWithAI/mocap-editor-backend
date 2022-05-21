@@ -59,6 +59,7 @@ RESULT_PATH = os.path.join(RESULT_DIRECTORY_NAME)
 CPU_INFO = get_cpu_info()['brand_raw'] # takes 1sec
 GPU_STATUS = True if torch.cuda.is_available() else False
 
+QUEUE = asyncio.queues.Queue()
 
 @app.get("/")
 async def root():
@@ -183,11 +184,19 @@ async def system_information():
 
 @app.post('/motion-generation-model/inference')
 async def motion_generation_model_inference(data: MotionGenerationData):
-    fixed_filename = change_bvh_axis(data.filename)
+    unique_id = str(uuid.uuid4())
+    global QUEUE
+
     inbetweening = Inbetweening()
-    inbetweening.inbetween(fixed_filename, data.seed_frames, "./results/motion_generation/test.bvh")
+    inbetweening.inbetween(data.filename, data.seed_frames, "./results/motion_generation/" + unique_id + "-result.bvh")
     
+    QUEUE.put_nowait({"url": "http://localhost:8000/result/motion-generation/" + unique_id + "-result.bvh"})
     return data
+
+
+@app.get('/result/motion-generation/{filename}')
+def get_motion_generation_result(filename):
+    return FileResponse(os.path.join(os.path.join(RESULT_PATH, "motion_generation"), filename), media_type="text/plain")
 
 
 @app.get('/result/style-transfer/{filename}')
@@ -199,11 +208,15 @@ def get_processing_result(filename):
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     print("Connection accepted")
+    global QUEUE
     while True:
-        # await websocket.send_json({"url": "http://localhost:8000/file/38e0279f-ced7-44db-b6d4-cd3680a13598-fixed.bvh"})
-        await asyncio.sleep(5)
-        # await websocket.send_json({"url": "http://localhost:8000/file/85f1c481-0637-4ed2-aee1-2e20d07e291c-walk1_subject1.bvh"})
-        # await asyncio.sleep(15)
+        if QUEUE.empty():
+            await asyncio.sleep(1)
+        else:
+            data = await QUEUE.get()
+            print(data)
+            await websocket.send_json(data)
+            
         
 
 
