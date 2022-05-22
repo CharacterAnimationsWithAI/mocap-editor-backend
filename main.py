@@ -190,7 +190,7 @@ async def motion_generation_model_inference(data: MotionGenerationData):
     global QUEUE
 
     inbetweening = Inbetweening()
-    inbetweening.inbetween(data.filename, data.seed_frames, "./results/motion_generation/" + unique_id + "-result.bvh")
+    inbetweening.inbetween(data.filename, data.seed_frames, os.path.join(RESULT_PATH, "motion_generation", unique_id + "-result.bvh"))
     
     QUEUE.put_nowait({"url": "http://localhost:8000/result/motion-generation/" + unique_id + "-result.bvh"})
 
@@ -200,7 +200,9 @@ async def motion_generation_model_inference(data: MotionGenerationData):
     mongo_api.insert_log({"action": "motion_generation", "motion_generation": True, "source_file": ''.join(data.filename.split('-')[5:]), "target_file": '', "date": datetime.now()})
     mongo_api.update_average_motion_inference_time(total_time)
 
-    return data
+    print({"url": os.path.join(os.getcwd(), RESULT_PATH, "motion_generation", unique_id + "-result.bvh")})
+
+    return {"url" : os.path.join(os.getcwd(), RESULT_PATH, "motion_generation", unique_id + "-result.bvh")}
 
 
 @app.get('/result/motion-generation/{filename}')
